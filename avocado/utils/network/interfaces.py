@@ -592,3 +592,22 @@ class NetworkInterface:
             return True
         except (NWException, IndexError):
             raise NWException("Ping Failed.")
+
+    def check_packet_loss(self, peer_ip, count, option=None, flood=False):
+        """
+        Function checks for packet loss during ping.
+        Return False for 0% packet loss and True if packet loss occurs.
+        """
+        cmd = f'ping -I {self.name} {peer_ip} -c {count}'
+        if flood is True:
+            cmd = f'{cmd} -f'
+        elif option is not None:
+            cmd = f'{cmd} {option}'
+        try:
+            output = process.system_output(cmd, ignore_status=True,
+                                           shell=True, sudo=True)
+            if "0% packet loss" not in output.decode('utf-8'):
+                return False
+            return True
+        except (NWException, IndexError):
+            raise NWException("Ping Failed.")
